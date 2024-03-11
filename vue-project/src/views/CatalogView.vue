@@ -1,6 +1,7 @@
 <script>
 import productsJSON from "../assets/vue-test-master/products.json";
 import logo from "../assets/vue-test-master/assets/images/logo.png"
+import { isProxy, toRaw } from 'vue';
 
 export default {
 
@@ -8,17 +9,20 @@ export default {
     return {
       products: productsJSON,
       logo: logo,
-      clicked: false
+      clicked: false,
+      qq: {q: 10}
     }
   },
   created() {
+    console.log(this.products)
   },
   methods: {
     log(brand){
       console.log(brand)
     },
-    underline(brand){
-      console.log(brand)
+    underLine(brand){
+      console.log(toRaw(this.products))
+      this.products = this.products[0]
     }
   }
 }
@@ -33,7 +37,7 @@ export default {
         filters
       </span>
       <ul id="filters-wrapper" v-for="data in products">
-        <li :id="data.brand" class="filter" v-bind:class="{'blue': clicked}">
+        <li :id="data.brand" class="filter">
           <button 
             v-on:click ="underLine(data.brand)"
             class="filter-selector">
@@ -62,11 +66,6 @@ export default {
       </div>
     </li>
   </ul>
-  <nav>
-    <RouterLink to="/">Home</RouterLink>
-    <RouterLink to="/cart">CART</RouterLink>
-  </nav>
-  <RouterView />
   </main>
 </template>
 

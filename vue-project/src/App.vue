@@ -1,12 +1,25 @@
 <script>
+export default {
+data() {
+  return {
+      showCart: true
+    }
+  },
+  methods: {
+
+  }
+}
 </script>
 
 <template>
-  <header>
-    <img src="./assets/vue-test-master/assets/images/logo.png" />
-    <RouterLink to="/">
-      <button id="cart" >
-      <svg id="svgCart" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  <header :id='showCart ? "with-cart" : "without-cart"'>
+    <RouterLink to="/" @click="showCart = true" >
+      <img src="./assets/vue-test-master/assets/images/logo.png" />
+    </RouterLink>
+    
+    <RouterLink to="/cart" id="cart" @click="showCart = false" v-if="showCart">
+
+      <svg  id="svgCart" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" width="50px" height="50px" viewBox="0 0 902.86 902.86"
         xml:space="preserve">
         <g>
@@ -26,20 +39,26 @@
       <span id="cart-total-items">
         10
       </span>
-    </button>
+
     </RouterLink>
 
   </header>
-  <nav>
-    <RouterLink to="/">Home</RouterLink>
-  </nav>
   <RouterView />
 </template>
 
 <style scoped>
-header {
+#with-cart {
   display: flex;
   justify-content: space-between;
+  border-bottom: 2px solid black;
+  padding: 10px;
+  margin: 10px auto 10px auto;
+  max-width: 1400px;
+}
+
+#without-cart {
+  display: flex;
+  justify-content: center;
   border-bottom: 2px solid black;
   padding: 10px;
   margin: 10px auto 10px auto;
