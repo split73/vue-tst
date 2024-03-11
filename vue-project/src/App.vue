@@ -1,4 +1,5 @@
 <script>
+import CatalogView from './views/CatalogView.vue';
 export default {
 data() {
   return {
@@ -43,7 +44,8 @@ data() {
     </RouterLink>
 
   </header>
-  <RouterView />
+  <router-view v-slot="{ CatalogView }" your="your-value">
+  </router-view>
 </template>
 
 <style scoped>

@@ -2,7 +2,7 @@
 import productsJSON from "../assets/vue-test-master/products.json";
 export default {
 
-data() {
+setup() {
   return {
     products: productsJSON,
   }

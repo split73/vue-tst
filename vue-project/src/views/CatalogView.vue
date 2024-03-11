@@ -1,28 +1,37 @@
 <script>
 import productsJSON from "../assets/vue-test-master/products.json";
 import logo from "../assets/vue-test-master/assets/images/logo.png"
-import { isProxy, toRaw } from 'vue';
 
 export default {
-
   data() {
     return {
       products: productsJSON,
       logo: logo,
       clicked: false,
-      qq: {q: 10}
+      filterSet: new Set(),
     }
   },
   created() {
-    console.log(this.products)
+    
   },
   methods: {
-    log(brand){
-      console.log(brand)
-    },
-    underLine(brand){
-      console.log(toRaw(this.products))
-      this.products = this.products[0]
+    addBrandToFilter(product){
+      if (this.filterSet.has(product.brand)){
+        this.filterSet.delete(product.brand)
+      } else {
+        this.filterSet.add(product.brand)
+      }
+    }
+  },
+  computed: {
+    filteredByBrand() {
+      if (this.filterSet.size === 0){
+        return this.products
+      }
+
+      return this.products.filter((product) => 
+        this.filterSet.has(product.brand)
+      )
     }
   }
 }
@@ -36,32 +45,32 @@ export default {
       <span id="filters-title">
         filters
       </span>
-      <ul id="filters-wrapper" v-for="data in products">
-        <li :id="data.brand" class="filter">
+      <ul id="filters-wrapper" v-for="product in products">
+        <li :id="product.brand" class="filter">
           <button 
-            v-on:click ="underLine(data.brand)"
+            v-on:click ="addBrandToFilter(product)"
             class="filter-selector">
-            brand {{ data.brand }}
+            brand {{ product.brand }}
           </button>
         </li>
       </ul>
     </aside>
 
   <ul id="product-container"  >
-    <li class="product-card" v-for="data in products">
+    <li class="product-card" v-for="product in filteredByBrand">
       <div class="thumbnail-wrapper">
-        <img v-bind:src="`${data.image}`" class="product-image">
+        <img v-bind:src="`${product.image}`" class="product-image">
       </div>
       <div class="product-details">
         <span class="product-title">
-        {{ data.title }}
+        {{ product.title }}
         </span>
         <span class="product-brand">
-          {{ data.brand }}
+          {{ product.brand }}
         </span>
         <span class="product-price">
-          {{ data.regular_price.currency }}
-          {{ data.regular_price.value }}
+          {{ product.regular_price.currency }}
+          {{ product.regular_price.value }}
         </span>
       </div>
     </li>
