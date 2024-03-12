@@ -2,9 +2,11 @@
 import { store } from "../store/store.js"
 export default {
 
-setup() {
+data() {
   return {
-    store: store
+    store: store,
+    subTotal: 0,
+    accumulater: 0
   }
 },
 created() {
@@ -22,6 +24,16 @@ methods: {
         this.store.cartAmount -= this.store.cartItemsObj[title].quantity;
         delete this.store.cartItemsObj[title]
     }
+}, computed: {
+    getSubtotal(){
+        this.accumulater = 0
+    for (let key in this.store.cartItemsObj) {
+        if (this.store.cartItemsObj.hasOwnProperty(key)) {
+            this.accumulater += this.store.cartItemsObj[key].quantity * this.store.cartItemsObj[key].regular_price.value
+        }
+    }
+    return this.accumulater
+    }
 }
 }
 
@@ -30,7 +42,6 @@ methods: {
 <template>
     <main>
         <h1>
-            Shopping Cart
         </h1>
             <div id="product-data-columns" >
                 <span class="item-product-data-column">
@@ -63,10 +74,11 @@ methods: {
             </span>
         </div>
         <span class="product-currency">
-          {{ data.regular_price.value }}
+            {{ data.regular_price.currency }}
+            {{ data.regular_price.value }}
         </span>
         <span class="product-quantity">
-            <button @click="removeProduce(data.title)">-</button>
+            <button @click="removeProduce(data.title)" v-if="data.quantity>0">-</button>
             {{ data.quantity }}
             <button @click="addProduct(data.title)">+</button>
         </span>
@@ -74,10 +86,16 @@ methods: {
             {{ data.regular_price.currency }}
             {{ data.regular_price.value * data.quantity }}
         </span>
-        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(data.title)"> 
+        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(data.title, data.quantity)"> 
 
     </li>
+   
   </ul>
+  <div id="checkout-wrapper">
+    <h2 id="accumulated-price">Subtotal: USD {{ getSubtotal }}</h2>
+    <button id="checkout">Checkout</button>
+  </div>
+  
     </main>
 </template>
 
@@ -86,6 +104,7 @@ main {
     margin-left: auto;
     margin-right: auto;
     max-width: 1400px;
+    position: relative;
 }
 
 #product-data-columns {
@@ -174,5 +193,15 @@ li {
 
 .price-product-data-column, .qty-product-data-column, .total-product-data-column {
     width: 15%;
+}
+
+#checkout-wrapper {
+    position: absolute;
+    right: 5%;
+}
+
+#checkout {
+    background: none;
+    width: 100%;
 }
 </style>
