@@ -1,16 +1,17 @@
 <script>
-import productsJSON from "../assets/vue-test-master/products.json";
+import confProductsJSON from "../assets/vue-test-master/assets/level3/products.json"
 import logo from "../assets/vue-test-master/assets/images/logo.png"
 import { store } from "../store/store.js"
 
 export default {
   data() {
     return {
-      products: productsJSON,
+      confProducts: confProductsJSON,
       logo: logo,
       clicked: false,
       filterSet: new Set(),
       store: store,
+      allowedSizes: new Set()
     }
   },
   created() {
@@ -34,19 +35,49 @@ export default {
         product.quantity = 1
         this.store.cartItemsObj[product.title] = product
       }
+    },
+    confButtonVariants(variants) {
+      variants.map(((el) => {
+        console.log(el)
+      }))
+      return variants
+    },
+    confButtonSize(product, selectderColor = 0 ){
+      if (selectderColor === 0){
+        this.allowedSizes = new Set()
+        product.variants.map((el) => {
+          el.attributes.map((nestedEl) => {
+            if (nestedEl.code === "size"){
+              this.allowedSizes.add(nestedEl.value_index)
+            }
+          })
+        })
+        
+        return this.allowedSizes
+      } else {
+        this.allowedSizes = new Set()
+        product.variants.map((el) => {
+          if (el.attributes[0].value_index === selectderColor){
+            this.allowedSizes.add(el.attributes[1].value_index)
+          }
+        })
+      }
+      console.log("RES", Array.from(this.allowedSizes))
+      return Array.from(this.allowedSizes)
     }
     
   },
   computed: {
-    filteredByBrand() {
+    confFilteredByBrand() {
       if (this.filterSet.size === 0){
-        return this.products
+        return this.confProducts
       }
 
-      return this.products.filter((product) => 
+      return this.confProducts.filter((product) => 
         this.filterSet.has(product.brand)
       )
     }
+
   }
 }
 
@@ -59,8 +90,8 @@ export default {
       <span id="filters-title">
         filters
       </span>
-      <ul id="filters-wrapper" v-for="product in products">
-        <li :class="{ filter: true, activeFilter: this.filterSet.has(product?.brand) }">
+      <ul id="filters-wrapper" >
+        <li v-for="product in confProducts" :class="{ filter: true, activeFilter: this.filterSet.has(product?.brand) }">
           <button 
             v-on:click ="addBrandToFilter(product)"
             class="filter-selector">
@@ -71,8 +102,8 @@ export default {
     </aside>
 
   <ul id="product-container"  >
-    <li class="product-card" v-for="product in filteredByBrand" @click="addToCart(product)">
-      <div class="thumbnail-wrapper">
+    <li class="product-card" v-for="product in confFilteredByBrand" >
+      <div class="thumbnail-wrapper" @click="addToCart(product)">
         <img v-bind:src="`${product.image}`" class="product-image" draggable="false">
       </div>
       <div class="product-details">
@@ -86,6 +117,29 @@ export default {
           {{ product.regular_price.currency }}
           {{ product.regular_price.value }}
         </span>
+        <div v-if="product.type === `configurable`">
+          
+
+          <div v-for="specs in product.configurable_options">
+            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }">
+            </button>
+            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="values in specs.values" :style="{ background: 'none' }">
+              {{values.label}}
+              {{  this.confButtonSize(product) }}
+            </button>
+          </div>
+
+
+
+          <!-- <div v-for="specs in product.configurable_options">
+            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }">
+            </button>
+            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="values in specs.values" :style="{ background: 'none' }">
+              {{values.label}}
+            </button>
+          </div> -->
+          
+        </div>
       </div>
     </li>
   </ul>
@@ -127,6 +181,7 @@ main {
 #filters-wrapper{
   margin: 0;
   padding: 0;
+  border-right: 2px solid black;
 }
 
 #product-container {
@@ -135,7 +190,6 @@ main {
     width: calc(100% - 90px);
     flex-wrap: wrap;
     gap: 10px;
-    cursor: pointer;
 }
 @media (min-width: 805px) {
   .product-card {
@@ -154,10 +208,17 @@ main {
 .product-image {
     max-height: 600px;
     width: 100%;
-    
+    cursor: pointer;
 }
 .product-details {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  text-align: center;
+}
+
+.color-attribute {
+  width: 20%;
+  height: 15px;
 }
 </style>
