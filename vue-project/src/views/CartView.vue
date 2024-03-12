@@ -1,21 +1,27 @@
 <script>
-import productsJSON from "../assets/vue-test-master/products.json";
+import { store } from "../store/store.js"
 export default {
 
 setup() {
   return {
-    products: productsJSON,
+    store: store
   }
 },
 created() {
 },
 methods: {
-  log(brand){
-    console.log(brand)
-  },
-  underline(brand){
-    console.log(brand)
-  }
+    addProduct(title) {
+        this.store.cartItemsObj[title].quantity++
+        this.store.cartAmount++
+    },
+    removeProduce(title) {
+        this.store.cartItemsObj[title].quantity--
+        this.store.cartAmount--
+    },
+    deleteCartProduct(title) {
+        this.store.cartAmount -= this.store.cartItemsObj[title].quantity;
+        delete this.store.cartItemsObj[title]
+    }
 }
 }
 
@@ -42,7 +48,8 @@ methods: {
             </div>
             
   <ul id="product-container"  >
-    <li class="product-card" v-for="data in products">
+    <li class="product-card" v-for="(data, index) in store.cartItemsObj">
+        
         <div class="item-column">
             <div class="thumbnail-wrapper">
                 <img v-bind:src="`${data.image}`" class="product-image">
@@ -56,14 +63,19 @@ methods: {
             </span>
         </div>
         <span class="product-currency">
-          {{ data.regular_price.currency }}
+          {{ data.regular_price.value }}
         </span>
         <span class="product-quantity">
-            10
+            <button @click="removeProduce(data.title)">-</button>
+            {{ data.quantity }}
+            <button @click="addProduct(data.title)">+</button>
         </span>
         <span class="product-price">
-            {{ data.regular_price.value }}
+            {{ data.regular_price.currency }}
+            {{ data.regular_price.value * data.quantity }}
         </span>
+        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(data.title)"> 
+
     </li>
   </ul>
     </main>
@@ -89,7 +101,7 @@ main {
 }
 
 .product-currency, .product-quantity, .product-price {
-    width: 16%;
+    width: 15%;
     text-align: center;
 }
 
@@ -101,7 +113,6 @@ main {
     gap: 10px;
     padding: 0;
 }
-
 
   .product-card {
       display: flex;
@@ -138,11 +149,16 @@ main {
     }
 }
 
+.trash-image {
+    height: 50px;
+    width: 5%;
+    cursor: pointer;
+}
 
 .product-details {
   display: flex;
   flex-direction: row;
-  width: 16%;
+  width: 10%;
 }
 
 li {
@@ -157,6 +173,6 @@ li {
 }
 
 .price-product-data-column, .qty-product-data-column, .total-product-data-column {
-    width: 16%;
+    width: 15%;
 }
 </style>

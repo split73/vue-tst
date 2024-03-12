@@ -1,6 +1,7 @@
 <script>
 import productsJSON from "../assets/vue-test-master/products.json";
 import logo from "../assets/vue-test-master/assets/images/logo.png"
+import { store } from "../store/store.js"
 
 export default {
   data() {
@@ -9,6 +10,7 @@ export default {
       logo: logo,
       clicked: false,
       filterSet: new Set(),
+      store: store,
     }
   },
   created() {
@@ -21,7 +23,19 @@ export default {
       } else {
         this.filterSet.add(product.brand)
       }
+      return this.filterSet.has(product.brand)
+    },
+    addToCart(product) {
+      this.store.cartAmount++
+      
+      if (Object.hasOwn(this.store.cartItemsObj, product.title)){
+        this.store.cartItemsObj[product.title].quantity++
+      } else {
+        product.quantity = 1
+        this.store.cartItemsObj[product.title] = product
+      }
     }
+    
   },
   computed: {
     filteredByBrand() {
@@ -40,13 +54,13 @@ export default {
 
 <template>
  
-  <main id="main">
+  <main>
     <aside id="sidebar-filters">
       <span id="filters-title">
         filters
       </span>
       <ul id="filters-wrapper" v-for="product in products">
-        <li :id="product.brand" class="filter">
+        <li :class="{ filter: true, activeFilter: this.filterSet.has(product?.brand) }">
           <button 
             v-on:click ="addBrandToFilter(product)"
             class="filter-selector">
@@ -57,9 +71,9 @@ export default {
     </aside>
 
   <ul id="product-container"  >
-    <li class="product-card" v-for="product in filteredByBrand">
+    <li class="product-card" v-for="product in filteredByBrand" @click="addToCart(product)">
       <div class="thumbnail-wrapper">
-        <img v-bind:src="`${product.image}`" class="product-image">
+        <img v-bind:src="`${product.image}`" class="product-image" draggable="false">
       </div>
       <div class="product-details">
         <span class="product-title">
@@ -79,15 +93,15 @@ export default {
 </template>
 
 <style scoped>
-.blue {
-  background-color: aqua;
-}
 li {
   list-style: none;
 }
 
+.activeFilter {
+  border-bottom: 2px solid black;
+}
 
-#main {
+main {
   display: flex;
   flex-direction: row;
   margin: 30px;
@@ -120,6 +134,7 @@ li {
     width: calc(100% - 90px);
     flex-wrap: wrap;
     gap: 10px;
+    cursor: pointer;
 }
 @media (min-width: 805px) {
   .product-card {
@@ -138,14 +153,10 @@ li {
 .product-image {
     max-height: 600px;
     width: 100%;
+    
 }
 .product-details {
   display: flex;
   flex-direction: column;
-}
-
-
-.filter {
-  border-bottom: 2px solid black;
 }
 </style>

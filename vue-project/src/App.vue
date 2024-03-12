@@ -1,23 +1,21 @@
 <script>
-import CatalogView from './views/CatalogView.vue';
+import { store } from './store/store.js'
 export default {
 data() {
   return {
-      showCart: true
+      showCart: true,
+      store: store
     }
-  },
-  methods: {
-
   }
 }
 </script>
+
 
 <template>
   <header :id='showCart ? "with-cart" : "without-cart"'>
     <RouterLink to="/" @click="showCart = true" >
       <img src="./assets/vue-test-master/assets/images/logo.png" />
     </RouterLink>
-    
     <RouterLink to="/cart" id="cart" @click="showCart = false" v-if="showCart">
 
       <svg  id="svgCart" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg"
@@ -38,14 +36,14 @@ data() {
         </g>
       </svg>
       <span id="cart-total-items">
-        10
+        {{ store.cartAmount }}
       </span>
 
     </RouterLink>
 
   </header>
-  <router-view v-slot="{ CatalogView }" your="your-value">
-  </router-view>
+  <RouterView>
+  </RouterView>
 </template>
 
 <style scoped>
@@ -69,8 +67,6 @@ data() {
 
 #cart {
   position: relative;
-  border: 0;
-  background: none;
 }
 
 #cart-total-items {
