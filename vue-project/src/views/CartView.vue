@@ -6,7 +6,8 @@ data() {
   return {
     store: store,
     subTotal: 0,
-    accumulater: 0
+    accumulater: 0,
+    windowWidth: window.innerWidth
   }
 },
 created() {
@@ -32,7 +33,7 @@ methods: {
             this.accumulater += this.store.cartItemsObj[key].quantity * this.store.cartItemsObj[key].regular_price.value
         }
     }
-    return this.accumulater
+    return parseFloat(this.accumulater).toFixed(2)
     }
 }
 }
@@ -59,9 +60,9 @@ methods: {
             </div>
             
   <ul id="product-container"  >
-    <li class="product-card" v-for="(data, index) in store.cartItemsObj">
+    <li class="product-card" v-for="(data, index) in store.cartItemsObj" v-if="windowWidth > 700">
         
-        <div class="item-column">
+        <div class="item-column" >
             <div class="thumbnail-wrapper">
                 <img v-bind:src="`${data.image}`" class="product-image">
             </div>
@@ -84,9 +85,48 @@ methods: {
         </span>
         <span class="product-price">
             {{ data.regular_price.currency }}
-            {{ data.regular_price.value * data.quantity }}
+            {{ parseFloat(data.regular_price.value * data.quantity).toFixed(2) }}
         </span>
         <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(data.title, data.quantity)"> 
+
+    </li>
+
+    <li class="product-card" v-for="(data, index) in store.cartItemsObj" v-else>
+            <div class="thumbnail-wrapper">
+                <img v-bind:src="`${data.image}`" class="product-image">
+            </div>
+            <div class="product-data-wrapper">
+                <span class="product-title">
+                Title: {{ data.title }}
+            </span>
+            <span class="product-brand">
+                Brand: {{ data.brand }}
+            </span>
+        <span class="product-currency">
+            Price:
+            {{ data.regular_price.currency }}
+            {{ data.regular_price.value }}
+        </span>
+        <span class="product-quantity">
+            Quantity:
+            <button @click="removeProduce(data.title)" v-if="data.quantity>0">-</button>
+            
+            {{ data.quantity }}
+            <button @click="addProduct(data.title)">+</button>
+        </span>
+        <span class="product-price">
+            Total price:
+            {{ data.regular_price.currency }}
+            {{ parseFloat(data.regular_price.value * data.quantity).toFixed(2) }}
+        </span>
+        <button class="remove-from-cart" @click="deleteCartProduct(data.title, data.quantity)">
+            <span>
+                Remove
+            </span>
+            <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" > 
+        </button>
+    </div>
+            
 
     </li>
    
@@ -107,10 +147,27 @@ main {
     position: relative;
 }
 
+.product-data-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.remove-from-cart {
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    width: 70%;
+}
+
+.remove-from-cart > span{
+    width: 100%;
+}
+
+
 #product-data-columns {
     display: flex;
     width: 100%;
-    /* justify-content: end; */
     text-align: center;
 }
 
@@ -142,35 +199,47 @@ main {
       border-bottom: 4px solid black;
   }
 
-@media (max-width: 768) {
-  .product-card {
-    border-bottom: 4px solid black;
-    
-  }
-}
-
-@media (max-width: 415px) {
-    .product-image {
-    max-height: 100px;
-    max-width: 100px;
-    }
-}
 
 .product-image {
     max-height: 600px;
     max-width: 200px;
 }
 
-@media (max-width: 570px) {
+@media (max-width: 700px) {
     .product-image {
-    max-height: 75px;
-    max-width: 75px;
+        max-height: 100px;
+        max-width: 100px;
+    }
+    .product-card {
+        border-bottom: 4px solid black;
+        padding: 10px;
+    }
+    .product-details {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+    }
+    .product-data-wrapper {
+        margin-left: 30px;
+        gap: 5px;
+    }
+    .product-data-wrapper > span {
+        text-align: left;
+        width: 100%;
+        
+    }
+    body .trash-image {
+        height: 1em;
+        width: 1em;
+        cursor: pointer;
+        text-align: center;
+        margin: auto;
     }
 }
 
 .trash-image {
     height: 50px;
-    width: 5%;
+    width: 50px;
     cursor: pointer;
 }
 

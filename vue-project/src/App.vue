@@ -65,10 +65,6 @@ data() {
   max-width: 1400px;
 }
 
-#cart {
-  position: relative;
-}
-
 #cart-total-items {
   position: absolute;
   top: 10px;
@@ -77,6 +73,14 @@ data() {
   border-radius: 50%;
   padding: 2px;
   background-color: white;
+  height: 15px;
+  text-align: center;
+  aspect-ratio: 1;
+}
+#cart {
+  position: relative;
+  height: 50px;
+  aspect-ratio: 1;
 }
 
 #svgCart {

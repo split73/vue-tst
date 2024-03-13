@@ -62,7 +62,6 @@ export default {
           }
         })
       }
-      console.log("RES", Array.from(this.allowedSizes))
       return Array.from(this.allowedSizes)
     }
     
@@ -119,26 +118,18 @@ export default {
         </span>
         <div v-if="product.type === `configurable`">
           
-
           <div v-for="specs in product.configurable_options">
             <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }">
             </button>
             <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="values in specs.values" :style="{ background: 'none' }">
               {{values.label}}
-              {{  this.confButtonSize(product) }}
+              <!-- {{  this.confButtonSize(product) }} -->
             </button>
           </div>
 
 
 
-          <!-- <div v-for="specs in product.configurable_options">
-            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }">
-            </button>
-            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="values in specs.values" :style="{ background: 'none' }">
-              {{values.label}}
-            </button>
-          </div> -->
-          
+
         </div>
       </div>
     </li>
@@ -148,8 +139,14 @@ export default {
 </template>
 
 <style scoped>
-li {
+.product-card button.color-attribute {
+  height: 20px;
+  width: 20px;
+  margin: 6px 2px;
+}
+li, span, button{
   list-style: none;
+  font-size: 18px;
 }
 
 .activeFilter {
@@ -168,7 +165,11 @@ main {
 #sidebar-filters{
   display: flex;
   flex-direction: column;
-  width: 50px;
+  width: 250px;
+}
+
+#sidebar-filters li {
+  margin-top: 10px;
 }
 
 .filter-selector {
@@ -176,6 +177,7 @@ main {
   border: none;
   cursor: pointer;
   padding: 0;
+  font-size: inherit;
 }
 
 #filters-wrapper{
@@ -187,24 +189,11 @@ main {
 #product-container {
     display: flex;
     flex-direction: row;
-    width: calc(100% - 90px);
+    width: calc(100% - 290px);
     flex-wrap: wrap;
     gap: 10px;
 }
-@media (min-width: 805px) {
-  .product-card {
-      display: flex;
-      flex-direction: column;
-      width: calc(33.3% - 10px);
-      align-items: center;
-      min-width: 200px;
-  }
-}
-@media (max-width: 805px) {
-  .product-card {
-    width: calc(50% - 10px);
-  }
-}
+
 .product-image {
     max-height: 600px;
     width: 100%;
@@ -220,5 +209,58 @@ main {
 .color-attribute {
   width: 20%;
   height: 15px;
+}
+
+@media (max-width: 700px) {
+  #sidebar-filters {
+    width: 100%;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+  }
+  #sidebar-filters ul {
+    border: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #filters-title {
+    width: 100%;
+    text-align: center;
+  }
+  #product-container {
+    width: 100%;
+    padding: 10px;
+  }
+  .color-attribute {
+    width: 20px;
+    height: 20px;
+    margin: 5px 2px;
+  }
+}
+
+@media (min-width: 805px) {
+  .product-card {
+      display: flex;
+      flex-direction: column;
+      width: calc(33.3% - 10px);
+      align-items: center;
+      min-width: 200px;
+  }
+  li.product-card:hover {
+    transform: translateY(-9px);
+    box-shadow: 1px 9px 3px 2px #eee;
+  }
+  .product-card[data-v-e2844fbc] {
+      transition: .2s ease;
+      box-shadow: 1px 1px 3px 2px #eee;
+  }
+}
+
+@media (max-width: 805px) {
+  .product-card {
+    width: calc(50% - 10px);
+  }
 }
 </style>
