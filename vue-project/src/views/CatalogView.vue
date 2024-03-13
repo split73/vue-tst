@@ -14,8 +14,8 @@ export default {
     }
   },
   methods: {
-    addBrandToFilter(brand){
-      if (this.filterSet.has(brand)){
+    addBrandToFilter(brand) {
+      if (this.filterSet.has(brand)) {
         this.filterSet.delete(brand)
       } else {
         this.filterSet.add(brand)
@@ -23,11 +23,11 @@ export default {
       return this.filterSet.has(brand)
     },
     addToCart(product) {
-      if (product.type === "configurable"){
-        if (product.selectedOption){
-          if (Object.hasOwn(this.store.cartItemsObj, product.selectedOption.product.id)){
+      if (product.type === "configurable") {
+        if (product.selectedOption) {
+          if (Object.hasOwn(this.store.cartItemsObj, product.selectedOption.product.id)) {
             this.store.cartItemsObj[product.selectedOption.product.id].quantity++
-        } else {
+          } else {
             this.store.cartItemsObj[product.selectedOption.product.id] = JSON.parse(JSON.stringify(product))
             this.store.cartItemsObj[product.selectedOption.product.id].quantity = 1
           }
@@ -35,38 +35,38 @@ export default {
           return
         }
       }
-      
-      
-      else if (Object.hasOwn(this.store.cartItemsObj, product.id)){
+
+
+      else if (Object.hasOwn(this.store.cartItemsObj, product.id)) {
         this.store.cartItemsObj[product.id].quantity++
       } else {
-          this.store.cartItemsObj[product.id] = product
-          this.store.cartItemsObj[product.id].quantity = 1
+        this.store.cartItemsObj[product.id] = product
+        this.store.cartItemsObj[product.id].quantity = 1
       }
       this.store.cartAmount++
     }, showAllowedSizes(product, value) {
       product.selectedColor = value
       product.allowedOptions = [];
-        product.variants.map((variant) => {
-          if (variant.attributes[0].value_index === product.selectedColor.value_index){
-            product.allowedOptions.push(variant)
-          }
-        })
+      product.variants.map((variant) => {
+        if (variant.attributes[0].value_index === product.selectedColor.value_index) {
+          product.allowedOptions.push(variant)
+        }
+      })
     }, selectSize(product, selectedOption) {
       product.selectedOption = selectedOption
     }
-    
-    
+
+
   },
   computed: {
     confFilteredByBrand() {
-      
-      
-      if (this.filterSet.size === 0){
+
+
+      if (this.filterSet.size === 0) {
         return this.confProducts
       }
 
-      return this.confProducts.filter((product) => 
+      return this.confProducts.filter((product) =>
         this.filterSet.has(product.brand)
       )
     }, filterOptions() {
@@ -84,62 +84,56 @@ export default {
 </script>
 
 <template>
- 
   <main>
     <aside id="sidebar-filters">
       <span id="filters-title">
         filters
       </span>
-      <ul id="filters-wrapper" >
+      <ul id="filters-wrapper">
         <li v-for="brand in filterOptions" :class="{ filter: true, activeFilter: this.filterSet.has(brand) }">
-          <button 
-            v-on:click ="addBrandToFilter(brand)"
-            class="filter-selector">
+          <button v-on:click="addBrandToFilter(brand)" class="filter-selector">
             brand {{ brand }}
           </button>
         </li>
       </ul>
     </aside>
-
-  <ul id="product-container"  >
-    <li class="product-card" v-for="product in confFilteredByBrand" >
-      <div class="thumbnail-wrapper" @click="addToCart(product)">
-        <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image" draggable="false">
-        <img v-else v-bind:src="`${product.image}`" class="product-image" draggable="false">
-      </div>
-      <div class="product-details">
-        <span class="product-title">
-        {{ product.title }}
-        </span>
-        <span class="product-brand">
-          {{ product.brand }}
-        </span>
-        <span class="product-price">
-          {{ product.regular_price.currency }}
-          {{ product.regular_price.value }}
-        </span>
-        <div v-if="product.type === `configurable`">
-          
-          <div v-for="specs in product.configurable_options">
-            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }" @click="showAllowedSizes(product, values)">
-            </button>
-            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="allowedOption in product?.allowedOptions" :style="{ background: 'none' }" @click="selectSize(product, allowedOption)">
-              <span v-for="value in product.configurable_options[1].values">
-                <span  v-if="value.value_index === allowedOption?.attributes[1]?.value_index">
-                  {{value.label}}
-                </span>
-              </span>
-              
-            </button>
-          </div>
-
-
-
-
+    <ul id="product-container">
+      <li class="product-card" v-for="product in confFilteredByBrand">
+        <div class="thumbnail-wrapper" @click="addToCart(product)">
+          <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`"
+            class="product-image" draggable="false">
+          <img v-else v-bind:src="`${product.image}`" class="product-image" draggable="false">
         </div>
-      </div>
-    </li>
-  </ul>
+        <div class="product-details">
+          <span class="product-title">
+            {{ product.title }}
+          </span>
+          <span class="product-brand">
+            {{ product.brand }}
+          </span>
+          <span class="product-price">
+            {{ product.regular_price.currency }}
+            {{ product.regular_price.value }}
+          </span>
+          <div v-if="product.type === `configurable`">
+            <div v-for="specs in product.configurable_options">
+              <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values"
+                :style="{ backgroundColor: values.value }" @click="showAllowedSizes(product, values)">
+              </button>
+              <button class="size-attribute" v-if="specs.attribute_code === 'size'"
+                v-for="allowedOption in product?.allowedOptions" :style="{ background: 'none' }"
+                @click="selectSize(product, allowedOption)">
+                <span v-for="value in product.configurable_options[1].values">
+                  <span v-if="value.value_index === allowedOption?.attributes[1]?.value_index">
+                    {{ value.label }}
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
 
   </main>
 </template>
@@ -150,7 +144,10 @@ export default {
   width: 20px;
   margin: 6px 2px;
 }
-li, span, button{
+
+li,
+span,
+button {
   list-style: none;
   font-size: 18px;
 }
@@ -168,7 +165,7 @@ main {
   margin: auto;
 }
 
-#sidebar-filters{
+#sidebar-filters {
   display: flex;
   flex-direction: column;
   width: 250px;
@@ -186,25 +183,26 @@ main {
   font-size: inherit;
 }
 
-#filters-wrapper{
+#filters-wrapper {
   margin: 0;
   padding: 0;
   border-right: 2px solid black;
 }
 
 #product-container {
-    display: flex;
-    flex-direction: row;
-    width: calc(100% - 290px);
-    flex-wrap: wrap;
-    gap: 10px;
+  display: flex;
+  flex-direction: row;
+  width: calc(100% - 290px);
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .product-image {
-    max-height: 600px;
-    width: 100%;
-    cursor: pointer;
+  max-height: 600px;
+  width: 100%;
+  cursor: pointer;
 }
+
 .product-details {
   display: flex;
   flex-direction: column;
@@ -223,6 +221,7 @@ main {
     border-bottom: 2px solid #333;
     padding-bottom: 10px;
   }
+
   #sidebar-filters ul {
     border: 0;
     display: flex;
@@ -231,14 +230,17 @@ main {
     flex-wrap: wrap;
     justify-content: center;
   }
+
   #filters-title {
     width: 100%;
     text-align: center;
   }
+
   #product-container {
     width: 100%;
     padding: 10px;
   }
+
   .color-attribute {
     width: 20px;
     height: 20px;
@@ -248,19 +250,21 @@ main {
 
 @media (min-width: 805px) {
   .product-card {
-      display: flex;
-      flex-direction: column;
-      width: calc(33.3% - 10px);
-      align-items: center;
-      min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    width: calc(33.3% - 10px);
+    align-items: center;
+    min-width: 200px;
   }
+
   li.product-card:hover {
     transform: translateY(-9px);
     box-shadow: 1px 9px 3px 2px #eee;
   }
+
   .product-card[data-v-e2844fbc] {
-      transition: .2s ease;
-      box-shadow: 1px 1px 3px 2px #eee;
+    transition: .2s ease;
+    box-shadow: 1px 1px 3px 2px #eee;
   }
 }
 

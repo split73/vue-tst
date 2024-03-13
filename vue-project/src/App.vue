@@ -1,8 +1,8 @@
 <script>
 import { store } from './store/store.js'
 export default {
-data() {
-  return {
+  data() {
+    return {
       showCart: true,
       store: store
     }
@@ -13,12 +13,11 @@ data() {
 
 <template>
   <header :id='showCart ? "with-cart" : "without-cart"'>
-    <RouterLink to="/" @click="showCart = true" >
+    <RouterLink to="/" @click="showCart = true">
       <img src="./assets/vue-test-master/assets/images/logo.png" />
     </RouterLink>
     <RouterLink to="/cart" id="cart" @click="showCart = false" v-if="showCart">
-
-      <svg  id="svgCart" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg"
+      <svg id="svgCart" fill="#000000" version="1.1" xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" width="50px" height="50px" viewBox="0 0 902.86 902.86"
         xml:space="preserve">
         <g>
@@ -38,9 +37,7 @@ data() {
       <span id="cart-total-items">
         {{ store.cartAmount }}
       </span>
-
     </RouterLink>
-
   </header>
   <RouterView>
   </RouterView>
@@ -77,6 +74,7 @@ data() {
   text-align: center;
   aspect-ratio: 1;
 }
+
 #cart {
   position: relative;
   height: 50px;

@@ -2,46 +2,46 @@
 import { store } from "../store/store.js"
 export default {
 
-data() {
-  return {
-    store: store,
-    subTotal: 0,
-    accumulater: 0,
-    windowWidth: window.innerWidth
-  }
-},
-created() {
-},
-methods: {
-    addProduct(id) {
-        this.store.cartItemsObj[id].quantity++
-        this.store.cartAmount++
-        
+    data() {
+        return {
+            store: store,
+            subTotal: 0,
+            accumulater: 0,
+            windowWidth: window.innerWidth
+        }
     },
-    removeProduce(id) {
-        this.store.cartItemsObj[id].quantity--
-        this.store.cartAmount--
+    created() {
     },
-    deleteCartProduct(product) {
-        if (product.selectedOption){
-            this.store.cartAmount -= this.store.cartItemsObj[product.selectedOption.product.id].quantity;
-            delete this.store.cartItemsObj[product.selectedOption.product.id]
-        } else {
-            this.store.cartAmount -= this.store.cartItemsObj[product.id].quantity;
-            delete this.store.cartItemsObj[product.id]
+    methods: {
+        addProduct(id) {
+            this.store.cartItemsObj[id].quantity++
+            this.store.cartAmount++
+
+        },
+        removeProduce(id) {
+            this.store.cartItemsObj[id].quantity--
+            this.store.cartAmount--
+        },
+        deleteCartProduct(product) {
+            if (product.selectedOption) {
+                this.store.cartAmount -= this.store.cartItemsObj[product.selectedOption.product.id].quantity;
+                delete this.store.cartItemsObj[product.selectedOption.product.id]
+            } else {
+                this.store.cartAmount -= this.store.cartItemsObj[product.id].quantity;
+                delete this.store.cartItemsObj[product.id]
+            }
+        }
+    }, computed: {
+        getSubtotal() {
+            this.accumulater = 0
+            for (let key in this.store.cartItemsObj) {
+                if (this.store.cartItemsObj.hasOwnProperty(key)) {
+                    this.accumulater += this.store.cartItemsObj[key].quantity * this.store.cartItemsObj[key].regular_price.value
+                }
+            }
+            return parseFloat(this.accumulater).toFixed(2)
         }
     }
-}, computed: {
-    getSubtotal(){
-        this.accumulater = 0
-    for (let key in this.store.cartItemsObj) {
-        if (this.store.cartItemsObj.hasOwnProperty(key)) {
-            this.accumulater += this.store.cartItemsObj[key].quantity * this.store.cartItemsObj[key].regular_price.value
-        }
-    }
-    return parseFloat(this.accumulater).toFixed(2)
-    }
-}
 }
 
 </script>
@@ -55,19 +55,20 @@ methods: {
             <span class="price-product-data-column">
                 Price
             </span>
-            <span  class="qty-product-data-column">
+            <span class="qty-product-data-column">
                 Qty
             </span>
-            <span  class="total-product-data-column">
+            <span class="total-product-data-column">
                 Total
             </span>
         </div>
-            
-        <ul id="product-container"  >
+
+        <ul id="product-container">
             <li class="product-card" v-for="product in store.cartItemsObj" v-if="windowWidth > 700">
-                <div class="item-column" >
+                <div class="item-column">
                     <div class="thumbnail-wrapper">
-                        <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image">
+                        <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`"
+                            class="product-image">
                         <img v-else v-bind:src="`${product.image}`" class="product-image">
                     </div>
                     <span class="product-title">
@@ -78,15 +79,17 @@ methods: {
                     </span>
                     <div v-if="product.selectedOption" class="product-options">
                         <span v-for="value in product.configurable_options[0].values">
-                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index" class="product-color">
+                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index"
+                                class="product-color">
                                 Color:
-                                {{value.label}}
+                                {{ value.label }}
                             </span>
                         </span>
                         <span v-for="value in product.configurable_options[1].values">
-                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index" class="product-size">
+                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index"
+                                class="product-size">
                                 Size:
-                                {{value.label}}
+                                {{ value.label }}
                             </span>
                         </span>
                     </div>
@@ -96,28 +99,32 @@ methods: {
                     {{ product.regular_price.value }}
                 </span>
                 <span class="product-quantity">
-                    <button @click="removeProduce(product.selectedOption.product.id)" v-if="product.quantity>0 && product.selectedOption">-</button>
-                    <button @click="removeProduce(product.id)" v-else-if="product.quantity>0">-</button>
+                    <button @click="removeProduce(product.selectedOption.product.id)"
+                        v-if="product.quantity > 0 && product.selectedOption">-</button>
+                    <button @click="removeProduce(product.id)" v-else-if="product.quantity > 0">-</button>
                     {{ product.quantity }}
-                    <button @click="addProduct(product.selectedOption.product.id)" v-if="product.selectedOption">-</button>
+                    <button @click="addProduct(product.selectedOption.product.id)"
+                        v-if="product.selectedOption">-</button>
                     <button @click="addProduct(product.id)" v-else>+</button>
                 </span>
                 <span class="product-price">
                     {{ product.regular_price.currency }}
                     {{ parseFloat(product.regular_price.value * product.quantity).toFixed(2) }}
                 </span>
-                <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(product, product.quantity)"> 
+                <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png"
+                    @click="deleteCartProduct(product, product.quantity)">
 
             </li>
 
             <li class="product-card" v-for="product in store.cartItemsObj" v-else>
                 <div class="thumbnail-wrapper">
-                    <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image">
+                    <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`"
+                        class="product-image">
                     <img v-else v-bind:src="`${product.image}`" class="product-image">
                 </div>
                 <div class="product-data-wrapper">
                     <span class="product-title">
-                    Title: {{ product.title }}
+                        Title: {{ product.title }}
                     </span>
                     <span class="product-brand">
                         Brand: {{ product.brand }}
@@ -126,13 +133,13 @@ methods: {
                         <span v-for="value in product.configurable_options[0].values">
                             <span v-if="value.value_index === product.selectedOption.attributes[0].value_index">
                                 Label:
-                                {{value.label}}
+                                {{ value.label }}
                             </span>
                         </span>
                         <span v-for="value in product.configurable_options[1].values">
                             <span v-if="value.value_index === product.selectedOption.attributes[1].value_index">
                                 Size:
-                                {{value.label}}
+                                {{ value.label }}
                             </span>
                         </span>
                     </div>
@@ -143,10 +150,12 @@ methods: {
                     </span>
                     <span class="product-quantity">
                         Quantity:
-                        <button @click="removeProduce(product.selectedOption.product.id)" v-if="product.quantity>0 && product.selectedOption">-</button>
-                        <button @click="removeProduce(product.id)" v-else-if="product.quantity>0">-</button>
-                            {{ product.quantity }}
-                        <button @click="addProduct(product.selectedOption.product.id)" v-if="product.selectedOption">-</button>
+                        <button @click="removeProduce(product.selectedOption.product.id)"
+                            v-if="product.quantity > 0 && product.selectedOption">-</button>
+                        <button @click="removeProduce(product.id)" v-else-if="product.quantity > 0">-</button>
+                        {{ product.quantity }}
+                        <button @click="addProduct(product.selectedOption.product.id)"
+                            v-if="product.selectedOption">-</button>
                         <button @click="addProduct(product.id)" v-else>+</button>
                     </span>
                     <span class="product-price">
@@ -158,17 +167,17 @@ methods: {
                         <span>
                             Remove
                         </span>
-                        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" > 
+                        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png">
                     </button>
                 </div>
             </li>
-    
+
         </ul>
         <div id="checkout-wrapper">
             <h2 id="accumulated-price">Subtotal: USD {{ getSubtotal }}</h2>
             <button id="checkout">Checkout</button>
         </div>
-  
+
     </main>
 </template>
 
@@ -193,7 +202,7 @@ main {
     width: 70%;
 }
 
-.remove-from-cart > span{
+.remove-from-cart>span {
     width: 100%;
 }
 
@@ -209,7 +218,9 @@ main {
     margin-right: 18%;
 }
 
-.product-currency, .product-quantity, .product-price {
+.product-currency,
+.product-quantity,
+.product-price {
     width: 15%;
     text-align: center;
 }
@@ -223,14 +234,14 @@ main {
     padding: 0;
 }
 
-  .product-card {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      align-items: center;
-      min-width: 200px;
-      border-bottom: 4px solid black;
-  }
+.product-card {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    min-width: 200px;
+    border-bottom: 4px solid black;
+}
 
 
 .product-image {
@@ -243,24 +254,29 @@ main {
         max-height: 100px;
         max-width: 100px;
     }
+
     .product-card {
         border-bottom: 4px solid black;
         padding: 10px;
     }
+
     .product-details {
         display: flex;
         flex-direction: row;
         width: 100%;
     }
+
     .product-data-wrapper {
         margin-left: 30px;
         gap: 5px;
     }
-    .product-data-wrapper > span {
+
+    .product-data-wrapper>span {
         text-align: left;
         width: 100%;
-        
+
     }
+
     body .trash-image {
         height: 1em;
         width: 1em;
@@ -277,13 +293,13 @@ main {
 }
 
 .product-details {
-  display: flex;
-  flex-direction: row;
-  width: 10%;
+    display: flex;
+    flex-direction: row;
+    width: 10%;
 }
 
 li {
-  list-style: none;
+    list-style: none;
 }
 
 .item-column {
@@ -293,7 +309,9 @@ li {
     width: 50%;
 }
 
-.price-product-data-column, .qty-product-data-column, .total-product-data-column {
+.price-product-data-column,
+.qty-product-data-column,
+.total-product-data-column {
     width: 15%;
 }
 
