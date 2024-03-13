@@ -109,7 +109,7 @@ export default {
             {{ product.title }}
           </span>
           <span class="product-brand">
-            {{ product.brand }}
+            Brand: {{ product.brand }}
           </span>
           <span class="product-price">
             {{ product.regular_price.currency }}
