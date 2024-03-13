@@ -78,13 +78,13 @@ methods: {
                     </span>
                     <div v-if="product.selectedOption" class="product-options">
                         <span v-for="value in product.configurable_options[0].values">
-                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index">
-                                Label:
+                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index" class="product-color">
+                                Color:
                                 {{value.label}}
                             </span>
                         </span>
                         <span v-for="value in product.configurable_options[1].values">
-                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index">
+                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index" class="product-size">
                                 Size:
                                 {{value.label}}
                             </span>

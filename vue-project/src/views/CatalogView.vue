@@ -11,12 +11,7 @@ export default {
       clicked: false,
       filterSet: new Set(),
       store: store,
-      allowedSizes: new Set(),
-
     }
-  },
-  created() {
-    
   },
   methods: {
     addBrandToFilter(brand){
@@ -128,9 +123,13 @@ export default {
           <div v-for="specs in product.configurable_options">
             <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }" @click="showAllowedSizes(product, values)">
             </button>
-            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="option in product?.allowedOptions" :style="{ background: 'none' }" @click="selectSize(product, option)">
-              {{ product.allowedOptions[0].product.id}}
-              <!-- {{  this.confButtonSize(product) }} -->
+            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="allowedOption in product?.allowedOptions" :style="{ background: 'none' }" @click="selectSize(product, allowedOption)">
+              <span v-for="value in product.configurable_options[1].values">
+                <span  v-if="value.value_index === allowedOption?.attributes[1]?.value_index">
+                  {{value.label}}
+                </span>
+              </span>
+              
             </button>
           </div>
 
