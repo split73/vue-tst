@@ -13,17 +13,23 @@ data() {
 created() {
 },
 methods: {
-    addProduct(title) {
-        this.store.cartItemsObj[title].quantity++
+    addProduct(id) {
+        this.store.cartItemsObj[id].quantity++
         this.store.cartAmount++
+        
     },
-    removeProduce(title) {
-        this.store.cartItemsObj[title].quantity--
+    removeProduce(id) {
+        this.store.cartItemsObj[id].quantity--
         this.store.cartAmount--
     },
-    deleteCartProduct(title) {
-        this.store.cartAmount -= this.store.cartItemsObj[title].quantity;
-        delete this.store.cartItemsObj[title]
+    deleteCartProduct(product) {
+        if (product.selectedOption){
+            this.store.cartAmount -= this.store.cartItemsObj[product.selectedOption.product.id].quantity;
+            delete this.store.cartItemsObj[product.selectedOption.product.id]
+        } else {
+            this.store.cartAmount -= this.store.cartItemsObj[product.id].quantity;
+            delete this.store.cartItemsObj[product.id]
+        }
     }
 }, computed: {
     getSubtotal(){
@@ -42,99 +48,126 @@ methods: {
 
 <template>
     <main>
-        <h1>
-        </h1>
-            <div id="product-data-columns" >
-                <span class="item-product-data-column">
-                    Item
-                </span>
-                <span class="price-product-data-column">
-                    Price
-                </span>
-                <span  class="qty-product-data-column">
-                    Qty
-                </span>
-                <span  class="total-product-data-column">
-                    Total
-                </span>
-            </div>
-            
-  <ul id="product-container"  >
-    <li class="product-card" v-for="(data, index) in store.cartItemsObj" v-if="windowWidth > 700">
-        
-        <div class="item-column" >
-            <div class="thumbnail-wrapper">
-                <img v-bind:src="`${data.image}`" class="product-image">
-            </div>
-
-            <span class="product-title">
-                {{ data.title }}
+        <div id="product-data-columns" v-if="windowWidth > 700">
+            <span class="item-product-data-column">
+                Item
             </span>
-            <span class="product-brand">
-                {{ data.brand }}
+            <span class="price-product-data-column">
+                Price
+            </span>
+            <span  class="qty-product-data-column">
+                Qty
+            </span>
+            <span  class="total-product-data-column">
+                Total
             </span>
         </div>
-        <span class="product-currency">
-            {{ data.regular_price.currency }}
-            {{ data.regular_price.value }}
-        </span>
-        <span class="product-quantity">
-            <button @click="removeProduce(data.title)" v-if="data.quantity>0">-</button>
-            {{ data.quantity }}
-            <button @click="addProduct(data.title)">+</button>
-        </span>
-        <span class="product-price">
-            {{ data.regular_price.currency }}
-            {{ parseFloat(data.regular_price.value * data.quantity).toFixed(2) }}
-        </span>
-        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(data.title, data.quantity)"> 
-
-    </li>
-
-    <li class="product-card" v-for="(data, index) in store.cartItemsObj" v-else>
-            <div class="thumbnail-wrapper">
-                <img v-bind:src="`${data.image}`" class="product-image">
-            </div>
-            <div class="product-data-wrapper">
-                <span class="product-title">
-                Title: {{ data.title }}
-            </span>
-            <span class="product-brand">
-                Brand: {{ data.brand }}
-            </span>
-        <span class="product-currency">
-            Price:
-            {{ data.regular_price.currency }}
-            {{ data.regular_price.value }}
-        </span>
-        <span class="product-quantity">
-            Quantity:
-            <button @click="removeProduce(data.title)" v-if="data.quantity>0">-</button>
             
-            {{ data.quantity }}
-            <button @click="addProduct(data.title)">+</button>
-        </span>
-        <span class="product-price">
-            Total price:
-            {{ data.regular_price.currency }}
-            {{ parseFloat(data.regular_price.value * data.quantity).toFixed(2) }}
-        </span>
-        <button class="remove-from-cart" @click="deleteCartProduct(data.title, data.quantity)">
-            <span>
-                Remove
-            </span>
-            <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" > 
-        </button>
-    </div>
-            
+        <ul id="product-container"  >
+            <li class="product-card" v-for="product in store.cartItemsObj" v-if="windowWidth > 700">
+                <div class="item-column" >
+                    <div class="thumbnail-wrapper">
+                        <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image">
+                        <img v-else v-bind:src="`${product.image}`" class="product-image">
+                    </div>
+                    <span class="product-title">
+                        {{ product.title }}
+                    </span>
+                    <span class="product-brand">
+                        {{ product.brand }}
+                    </span>
+                    <div v-if="product.selectedOption" class="product-options">
+                        <span v-for="value in product.configurable_options[0].values">
+                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index">
+                                Label:
+                                {{value.label}}
+                            </span>
+                        </span>
+                        <span v-for="value in product.configurable_options[1].values">
+                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index">
+                                Size:
+                                {{value.label}}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <span class="product-currency">
+                    {{ product.regular_price.currency }}
+                    {{ product.regular_price.value }}
+                </span>
+                <span class="product-quantity">
+                    <button @click="removeProduce(product.selectedOption.product.id)" v-if="product.quantity>0 && product.selectedOption">-</button>
+                    <button @click="removeProduce(product.id)" v-else-if="product.quantity>0">-</button>
+                    {{ product.quantity }}
+                    <button @click="addProduct(product.selectedOption.product.id)" v-if="product.selectedOption">-</button>
+                    <button @click="addProduct(product.id)" v-else>+</button>
+                </span>
+                <span class="product-price">
+                    {{ product.regular_price.currency }}
+                    {{ parseFloat(product.regular_price.value * product.quantity).toFixed(2) }}
+                </span>
+                <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" @click="deleteCartProduct(product, product.quantity)"> 
 
-    </li>
-   
-  </ul>
-  <div id="checkout-wrapper">
-    <h2 id="accumulated-price">Subtotal: USD {{ getSubtotal }}</h2>
-    <button id="checkout">Checkout</button>
-  </div>
+            </li>
+
+            <li class="product-card" v-for="product in store.cartItemsObj" v-else>
+                <div class="thumbnail-wrapper">
+                    <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image">
+                    <img v-else v-bind:src="`${product.image}`" class="product-image">
+                </div>
+                <div class="product-data-wrapper">
+                    <span class="product-title">
+                    Title: {{ product.title }}
+                    </span>
+                    <span class="product-brand">
+                        Brand: {{ product.brand }}
+                    </span>
+                    <div v-if="product.selectedOption" class="product-options">
+                        <span v-for="value in product.configurable_options[0].values">
+                            <span v-if="value.value_index === product.selectedOption.attributes[0].value_index">
+                                Label:
+                                {{value.label}}
+                            </span>
+                        </span>
+                        <span v-for="value in product.configurable_options[1].values">
+                            <span v-if="value.value_index === product.selectedOption.attributes[1].value_index">
+                                Size:
+                                {{value.label}}
+                            </span>
+                        </span>
+                    </div>
+                    <span class="product-currency">
+                        Price:
+                        {{ product.regular_price.currency }}
+                        {{ product.regular_price.value }}
+                    </span>
+                    <span class="product-quantity">
+                        Quantity:
+                        <button @click="removeProduce(product.selectedOption.product.id)" v-if="product.quantity>0 && product.selectedOption">-</button>
+                        <button @click="removeProduce(product.id)" v-else-if="product.quantity>0">-</button>
+                            {{ product.quantity }}
+                        <button @click="addProduct(product.selectedOption.product.id)" v-if="product.selectedOption">-</button>
+                        <button @click="addProduct(product.id)" v-else>+</button>
+                    </span>
+                    <span class="product-price">
+                        Total price:
+                        {{ product.regular_price.currency }}
+                        {{ parseFloat(product.regular_price.value * product.quantity).toFixed(2) }}
+                    </span>
+                    <button class="remove-from-cart" @click="deleteCartProduct(product.title, product.quantity)">
+                        <span>
+                            Remove
+                        </span>
+                        <img class="trash-image" src="../assets/vue-test-master/assets/images/trash.png" > 
+                    </button>
+                </div>
+            </li>
+    
+        </ul>
+        <div id="checkout-wrapper">
+            <h2 id="accumulated-price">Subtotal: USD {{ getSubtotal }}</h2>
+            <button id="checkout">Checkout</button>
+        </div>
   
     </main>
 </template>

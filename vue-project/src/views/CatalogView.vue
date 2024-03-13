@@ -11,63 +11,62 @@ export default {
       clicked: false,
       filterSet: new Set(),
       store: store,
-      allowedSizes: new Set()
+      allowedSizes: new Set(),
+
     }
   },
   created() {
     
   },
   methods: {
-    addBrandToFilter(product){
-      if (this.filterSet.has(product.brand)){
-        this.filterSet.delete(product.brand)
+    addBrandToFilter(brand){
+      if (this.filterSet.has(brand)){
+        this.filterSet.delete(brand)
       } else {
-        this.filterSet.add(product.brand)
+        this.filterSet.add(brand)
       }
-      return this.filterSet.has(product.brand)
+      return this.filterSet.has(brand)
     },
     addToCart(product) {
-      this.store.cartAmount++
-      
-      if (Object.hasOwn(this.store.cartItemsObj, product.title)){
-        this.store.cartItemsObj[product.title].quantity++
-      } else {
-        product.quantity = 1
-        this.store.cartItemsObj[product.title] = product
+      if (product.type === "configurable"){
+        if (product.selectedOption){
+          if (Object.hasOwn(this.store.cartItemsObj, product.selectedOption.product.id)){
+            this.store.cartItemsObj[product.selectedOption.product.id].quantity++
+        } else {
+            this.store.cartItemsObj[product.selectedOption.product.id] = JSON.parse(JSON.stringify(product))
+            this.store.cartItemsObj[product.selectedOption.product.id].quantity = 1
+          }
+        } else {
+          return
+        }
       }
-    },
-    confButtonVariants(variants) {
-      variants.map(((el) => {
-        console.log(el)
-      }))
-      return variants
-    },
-    confButtonSize(product, selectderColor = 0 ){
-      if (selectderColor === 0){
-        this.allowedSizes = new Set()
-        product.variants.map((el) => {
-          el.attributes.map((nestedEl) => {
-            if (nestedEl.code === "size"){
-              this.allowedSizes.add(nestedEl.value_index)
-            }
-          })
-        })
-        
-        return this.allowedSizes
+      
+      
+      else if (Object.hasOwn(this.store.cartItemsObj, product.id)){
+        this.store.cartItemsObj[product.id].quantity++
       } else {
-        this.allowedSizes = new Set()
-        product.variants.map((el) => {
-          if (el.attributes[0].value_index === selectderColor){
-            this.allowedSizes.add(el.attributes[1].value_index)
+          this.store.cartItemsObj[product.id] = product
+          this.store.cartItemsObj[product.id].quantity = 1
+      }
+      this.store.cartAmount++
+    }, showAllowedSizes(product, value) {
+      product.selectedColor = value
+      product.allowedOptions = [];
+        product.variants.map((variant) => {
+          if (variant.attributes[0].value_index === product.selectedColor.value_index){
+            product.allowedOptions.push(variant)
           }
         })
-      }
-      return Array.from(this.allowedSizes)
+    }, selectSize(product, selectedOption) {
+      product.selectedOption = selectedOption
     }
+    
     
   },
   computed: {
     confFilteredByBrand() {
+      
+      
       if (this.filterSet.size === 0){
         return this.confProducts
       }
@@ -75,7 +74,14 @@ export default {
       return this.confProducts.filter((product) => 
         this.filterSet.has(product.brand)
       )
+    }, filterOptions() {
+      this.filterOptionsSet = new Set()
+      this.confProducts.map((product) => {
+        this.filterOptionsSet.add(product.brand)
+      })
+      return Array.from(this.filterOptionsSet)
     }
+
 
   }
 }
@@ -90,11 +96,11 @@ export default {
         filters
       </span>
       <ul id="filters-wrapper" >
-        <li v-for="product in confProducts" :class="{ filter: true, activeFilter: this.filterSet.has(product?.brand) }">
+        <li v-for="brand in filterOptions" :class="{ filter: true, activeFilter: this.filterSet.has(brand) }">
           <button 
-            v-on:click ="addBrandToFilter(product)"
+            v-on:click ="addBrandToFilter(brand)"
             class="filter-selector">
-            brand {{ product.brand }}
+            brand {{ brand }}
           </button>
         </li>
       </ul>
@@ -103,7 +109,8 @@ export default {
   <ul id="product-container"  >
     <li class="product-card" v-for="product in confFilteredByBrand" >
       <div class="thumbnail-wrapper" @click="addToCart(product)">
-        <img v-bind:src="`${product.image}`" class="product-image" draggable="false">
+        <img v-if="product.selectedOption" v-bind:src="`${product.selectedOption.product.image}`" class="product-image" draggable="false">
+        <img v-else v-bind:src="`${product.image}`" class="product-image" draggable="false">
       </div>
       <div class="product-details">
         <span class="product-title">
@@ -119,10 +126,10 @@ export default {
         <div v-if="product.type === `configurable`">
           
           <div v-for="specs in product.configurable_options">
-            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }">
+            <button class="color-attribute" v-if="specs.attribute_code === 'color'" v-for="values in specs.values" :style="{ backgroundColor: values.value }" @click="showAllowedSizes(product, values)">
             </button>
-            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="values in specs.values" :style="{ background: 'none' }">
-              {{values.label}}
+            <button class="size-attribute" v-if="specs.attribute_code === 'size'" v-for="option in product?.allowedOptions" :style="{ background: 'none' }" @click="selectSize(product, option)">
+              {{ product.allowedOptions[0].product.id}}
               <!-- {{  this.confButtonSize(product) }} -->
             </button>
           </div>
